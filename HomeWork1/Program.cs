@@ -57,6 +57,7 @@ namespace HomeWork1
                 Console.WriteLine($"{i + 1} {product.Name} {product.Price}\n");
             }
         }
+
         public void AddCustomer(Customer customer)
         {
             int countCustomer = RandomGenerator.Next(0, maxCountCustomer);
@@ -71,7 +72,7 @@ namespace HomeWork1
         {
             ShowProducts();
 
-            Console.WriteLine("Нажмите на любую клавишу: ");
+            Console.WriteLine("\nНажмите на любую клавишу: ");
             Console.ReadKey();
             Console.Clear();
 
@@ -89,6 +90,7 @@ namespace HomeWork1
             }
 
             customer.ShowProducts();
+            Console.WriteLine("\nПокупатель завершил покупку.");
             return customer;
         }
     }
@@ -111,7 +113,7 @@ namespace HomeWork1
 
         public Customer(List<Product> products)
         {
-            Money = 500;
+            Money = 1000;
             _cart = products;
         }
 
@@ -126,6 +128,7 @@ namespace HomeWork1
                 Money -= product.Price;
             }
 
+            Console.WriteLine($"\nДеньги в кошельке {Money}.");
             ShowProducts();
         }
 
@@ -136,13 +139,13 @@ namespace HomeWork1
                 int index = RandomGenerator.Next(0, _cart.Count);
                 Product removeProduct = _cart[index];
                 _cart.RemoveAt(index);
-                Console.WriteLine($"удален продукт {removeProduct.Name}.");
+                Console.WriteLine($"удален продукт из корзины, не хватило денег: {removeProduct.Name}.");
             }
         }
 
         public void ShowProducts()
         {
-            Console.WriteLine("\nКорзина покупатля: ");
+            Console.WriteLine("Корзина покупатля: ");
 
             foreach (Product product in _cart)
             {
