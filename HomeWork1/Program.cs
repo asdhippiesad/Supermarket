@@ -8,37 +8,43 @@ namespace HomeWork1
         static void Main(string[] args)
         {
             Supermarket supermarket = new Supermarket();
-            bool isWork = true;
+            Customer customer = new Customer(supermarket.Products);
 
-            while (isWork)
-            {
-                Console.WriteLine();
-            }
-         
+            supermarket.AddCustomer(customer);
+            supermarket.ServeCustomer(customer);
+
             Console.ReadKey();
         }
+    }
+
+    public static class RandomGenerator
+    {
+        private static Random _random = new Random();
+
+        public static int Next(int maximum) => _random.Next(maximum);
     }
 
     class Supermarket
     {
         private List<Product> _products = new List<Product>();
         private Queue<Customer> _customer = new Queue<Customer>();
-        private Random _random = new Random();
 
         private int maxCountCustomer = 16;
 
         public Supermarket()
         {
-            _products.Add(new Product("Онигири", 50));
-            _products.Add(new Product("Моти", 40));
+            _products.Add(new Product("Онигири", 100));
+            _products.Add(new Product("Моти", 100));
             _products.Add(new Product("Омурайсу", 80));
-            _products.Add(new Product("Темаки", 70));
+            _products.Add(new Product("Темаки", 150));
             _products.Add(new Product("Соевый Соус", 90));
-            _products.Add(new Product("Соус Тирияки", 60));
-            _products.Add(new Product("Темаки", 20));
+            _products.Add(new Product("Соус Тирияки", 200));
+            _products.Add(new Product("Темаки", 200));
         }
 
-        public void ShowProduct()
+        public List<Product> Products => _products;
+
+        public void ShowProducts()
         {
             for (int i = 0; i < _products.Count; i++)
             {
@@ -46,10 +52,9 @@ namespace HomeWork1
                 Console.WriteLine($"{i + 1} {product.Name} {product.Price}");
             }
         }
-
         public void AddCustomer(Customer customer)
         {
-            int countCustomer = _random.Next(maxCountCustomer);
+            int countCustomer = RandomGenerator.Next(maxCountCustomer);
 
             for (int i = 0; i < countCustomer; i++)
             {
@@ -61,12 +66,12 @@ namespace HomeWork1
         {
             while (customer.Money >= 0)
             {
-                int productIndex = _random.Next(0, _products.Count);
+                int productIndex = RandomGenerator.Next(_products.Count);
                 Product product = _products[productIndex];
 
                 if (customer.Money >= product.Price)
                 {
-                    customer.BuyProduct(product);
+                    customer.PayProduct(product);
                     Console.WriteLine($"{product.Name} {product.Price}");
                 }
                 else
@@ -77,38 +82,6 @@ namespace HomeWork1
 
             customer.ShowProducts();
             return customer;
-        }
-
-        private int GetCustomer()
-        {
-            int customerCount = _customer.Count;
-            int productCount = _products.Count;
-
-            int count = _random.Next(customerCount, productCount);
-
-            for (int i = 0; i < count; i++)
-            {
-                _products.Add(_products[i]);
-            }
-
-            return count;
-        }
-
-        private void SellProduct(List<Product> products)
-        {
-            Customer customer = new Customer(products);
-
-            int productIndex = _random.Next(products.Count);
-
-            for (int i = 0; i < products.Count; i++)
-            {
-                if (customer.Money < _products[productIndex].Price)
-                {
-                    Product product = _products[productIndex];
-                    customer.BuyProduct(product);
-                    products.Add(product);
-                }
-            }
         }
     }
 
@@ -126,39 +99,45 @@ namespace HomeWork1
 
     class Customer
     {
-        private List<Product> _customerBasket = new List<Product>();
-        private Random _random = new Random();
+        private List<Product> _cart = new List<Product>();
 
         public Customer(List<Product> products)
         {
             Money = 500;
-            _customerBasket = products;
+            _cart = products;
         }
 
         public int Money { get; private set; }
-        public bool CanPay => _customerBasket.Count > 0;
+        public bool CanPay => _cart.Count > 0;
 
-        public void BuyProduct(Product product)
+        public void PayProduct(Product product)
         {
-            _customerBasket.Add(product);
-            Money -= product.Price;
+            if (Money >= product.Price)
+            {
+                _cart.Add(product);
+                Money -= product.Price;
+            }
+
+            ShowProducts();
         }
 
         public void RemoveRandomProduct()
         {
-            if (Money <= 0)
+            if (Money <= 0 && _cart.Count > 0)
             {
-                int index = _random.Next(0, _customerBasket.Count );
-                _customerBasket.RemoveAt(index);
-                Console.WriteLine($"удален продукт {_customerBasket.Count}");
+                int index = RandomGenerator.Next(_cart.Count);
+                Product removeProduct = _cart[index];
+                _cart.RemoveAt(index);
+                Money += removeProduct.Price;
+                Console.WriteLine($"удален продукт {_cart.Count}.");
             }
         }
 
         public void ShowProducts()
         {
-            foreach (Product product in _customerBasket)
+            foreach (Product product in _cart)
             {
-                Console.WriteLine($"Корзина покупателя: {product}");
+                Console.WriteLine($"Корзина покупателя: {product.Name}, {product.Price}.");
             }
         }
     }
