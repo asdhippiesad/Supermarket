@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.Linq;
 
 namespace HomeWork1
@@ -11,10 +10,9 @@ namespace HomeWork1
         {
             Supermarket supermarket = new Supermarket();
             List<Product> products = supermarket.GetProducts();
-            Customer customer = new Customer(products);
 
-            supermarket.AddCustomer(customer);
-            supermarket.ServeCustomer(customer);
+            supermarket.AddCustomer();
+            supermarket.ServeCustomer();
 
             Console.ReadKey();
         }
@@ -64,38 +62,42 @@ namespace HomeWork1
             }
         }
 
-        public void AddCustomer(Customer customer)
+        public void AddCustomer()
         {
             int countCustomer = RandomGenerator.Next(0, _maxCountCustomer);
 
             for (int i = 0; i < countCustomer; i++)
                 _customer.Enqueue(new Customer(GetProducts()));
+
+            ServeCustomer();
         }
 
-        public Customer ServeCustomer(Customer customer)
+        public void ServeCustomer()
         {
             ShowProducts();
-
             Console.WriteLine("\nНажмите на любую клавишу: ");
             Console.ReadKey();
             Console.Clear();
 
-            while (customer.Money >= 0 && customer.CanPay())
+            if (_customer.Count > 0)
             {
-                int productIndex = RandomGenerator.Next(0, _products.Count);
-                Product product = _products[productIndex];
+                Customer nextCustomer = _customer.Dequeue();
 
-                if (customer.Money > product.Price)
+                while (nextCustomer.Money >= 0 && nextCustomer.CanPay())
                 {
-                    customer.PayProduct(product);
-                    customer.RemoveRandomProduct();
-                    Console.WriteLine($"{product.Name} {product.Price}");
+                    int productIndex = RandomGenerator.Next(0, _products.Count);
+                    Product product = _products[productIndex];
+
+                    if (nextCustomer.Money > product.Price)
+                    {
+                        nextCustomer.PayProduct(product);
+                        nextCustomer.RemoveRandomProduct();
+                        nextCustomer.ShowProducts();
+                    }
                 }
             }
 
-            customer.ShowProducts();
-            Console.WriteLine("\nПокупатель завершил покупку.");
-            return customer;
+            Console.WriteLine("\nПокупатель завершил покупку.\n");
         }
     }
 
@@ -125,15 +127,14 @@ namespace HomeWork1
 
         public bool CanPay()
         {
+            int totalCost = 0;
+
             foreach (Product product in _cart)
             {
-                if (Money < product.Price)
-                {
-                    return false;
-                }
+                totalCost += product.Price;
             }
 
-            return true;
+            return Money <= totalCost;
         }
 
         public void PayProduct(Product product)
@@ -155,16 +156,16 @@ namespace HomeWork1
                 int index = RandomGenerator.Next(0, _cart.Count);
                 Product removeProduct = _cart[index];
                 _cart.RemoveAt(index);
-                Console.WriteLine($"удален продукт из корзины, не хватило денег: {removeProduct.Name}.");
+                Console.WriteLine($"удален продукт из корзины: {removeProduct.Name}.");
             }
         }
 
         public void ShowProducts()
         {
-            Console.WriteLine("Корзина покупатля: ");
+            Console.WriteLine("\nКорзина покупатля: ");
 
-            foreach (Product product in _cart)
-                Console.WriteLine($"{product.Name}, {product.Price}.");
+            for (int i = 0; i < _cart.Count; i++)
+                Console.WriteLine($"{i + 1}. {_cart[i].Name}, {_cart[i].Price}.\n");
         }
     }
 }
