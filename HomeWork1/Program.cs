@@ -9,10 +9,9 @@ namespace HomeWork1
         static void Main(string[] args)
         {
             Supermarket supermarket = new Supermarket();
-            List<Product> products = supermarket.GetProducts();
 
-            supermarket.AddCustomer();
-            supermarket.ServeCustomer();
+            supermarket.AddCustomers();
+            supermarket.ServeCustomers();
 
             Console.ReadKey();
         }
@@ -23,6 +22,7 @@ namespace HomeWork1
         private static Random s_random = new Random();
 
         public static int Next(int minimum, int maximum) => s_random.Next(minimum, maximum);
+        public static int Next(int maxCount) => s_random.Next(maxCount);
     }
 
     class Supermarket
@@ -30,7 +30,7 @@ namespace HomeWork1
         private List<Product> _products = new List<Product>();
         private Queue<Customer> _customer = new Queue<Customer>();
 
-        private int _maxCountCustomer = 5;
+        private int _maxCountCustomer = 10;
         private int _minCostProduct = 100;
         private int _maxCostProduct = 300;
 
@@ -46,11 +46,6 @@ namespace HomeWork1
             _products.Add(new Product("Рис", RandomGenerator.Next(_minCostProduct, _maxCostProduct)));
         }
 
-        public List<Product> GetProducts()
-        {
-            return _products.ToList();
-        }
-
         public void ShowProducts()
         {
             Console.WriteLine("Список продуктов: ");
@@ -62,17 +57,15 @@ namespace HomeWork1
             }
         }
 
-        public void AddCustomer()
+        public void AddCustomers()
         {
-            int countCustomer = RandomGenerator.Next(0, _maxCountCustomer);
+            int countCustomer = RandomGenerator.Next(1, _maxCountCustomer);
 
             for (int i = 0; i < countCustomer; i++)
                 _customer.Enqueue(new Customer(GetProducts()));
-
-            ServeCustomer();
         }
 
-        public void ServeCustomer()
+        public void ServeCustomers()
         {
             ShowProducts();
             Console.WriteLine("\nНажмите на любую клавишу: ");
@@ -99,6 +92,8 @@ namespace HomeWork1
 
             Console.WriteLine("\nПокупатель завершил покупку.\n");
         }
+
+        private List<Product> GetProducts() => _products.ToList();
     }
 
     class Product
