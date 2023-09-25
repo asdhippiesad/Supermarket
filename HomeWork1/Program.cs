@@ -22,7 +22,6 @@ namespace HomeWork1
         private static Random s_random = new Random();
 
         public static int Next(int minimum, int maximum) => s_random.Next(minimum, maximum);
-        public static int Next(int maxCount) => s_random.Next(maxCount);
     }
 
     class Supermarket
